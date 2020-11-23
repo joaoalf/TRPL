@@ -4,18 +4,28 @@ use std::fs;
 
 pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
     let contents = fs::read_to_string(config.filename)?;
-
     let result = if config.case_sensitive {
         search(&config.query, &contents)
     } else {
         search_case_insensitive(&config.query, &contents)
     };
 
-    for line in result {
-        println!("{}", line);
+    for l in result {
+        println!("line {}: {}", l.number, l.line);
     }
 
     Ok(())
+}
+
+pub struct Lines {
+    pub line: String,
+    pub number: u32,
+}
+
+impl Lines {
+    pub fn new(line: String, number: u32) -> Lines {
+        Lines { line, number }
+    }
 }
 
 pub struct Config {
@@ -41,25 +51,29 @@ impl Config {
     }
 }
 
-pub fn search<'a>(query: &str, contents: &'a str) -> Vec<&'a str> {
-    let mut results = Vec::new();
+pub fn search<'a>(query: &str, contents: &'a str) -> Vec<Lines> {
+    let mut results: Vec<Lines> = Vec::new();
+    let mut number: u32 = 0;
 
     for line in contents.lines() {
+        number = number + 1;
         if line.contains(query) {
-            results.push(line);
+            results.push(Lines::new(line.to_string(), number));
         }
     }
 
     results
 }
 
-pub fn search_case_insensitive<'a>(query: &str, contents: &'a str) -> Vec<&'a str> {
+pub fn search_case_insensitive<'a>(query: &str, contents: &'a str) -> Vec<Lines> {
     let query = query.to_lowercase();
-    let mut results = Vec::new();
+    let mut results: Vec<Lines> = Vec::new();
+    let mut number: u32 = 0;
 
     for line in contents.lines() {
+        number = number + 1;
         if line.to_lowercase().contains(&query) {
-            results.push(line);
+            results.push(Lines::new(line.to_string(), number));
         }
     }
 
