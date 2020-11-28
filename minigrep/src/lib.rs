@@ -80,12 +80,13 @@ pub fn search_case_insensitive<'a>(query: &str, contents: &'a str) -> Vec<Lines>
 
     for line in contents.lines() {
         number = number + 1;
-        if line.to_lowercase().contains(&query) {
-            results.push(Lines::new(line.to_string(), number));
-        }
+        results.push(Lines::new(line.to_string(), number));
     }
 
     results
+        .into_iter()
+        .filter(|l| l.line.to_lowercase().contains(&query))
+        .collect()
 }
 
 #[cfg(test)]
