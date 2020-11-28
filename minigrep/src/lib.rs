@@ -17,6 +17,7 @@ pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
+#[derive(Debug)]
 pub struct Lines {
     pub line: String,
     pub number: u32,
@@ -28,6 +29,11 @@ impl Lines {
     }
 }
 
+impl PartialEq for Lines {
+    fn eq(&self, other: &Lines) -> bool {
+        self.line == other.line && self.number == other.number
+    }
+}
 pub struct Config {
     pub query: String,
     pub filename: String,
@@ -102,7 +108,10 @@ safe, fast, productive.
 Pick three.
 Duct tape.";
 
-        assert_eq!(vec!["safe, fast, productive."], search(query, contents));
+        assert_eq!(
+            Lines::new("safe, fast, productive.".to_string(), 2),
+            search(query, contents)[0]
+        );
     }
 
     #[test]
@@ -115,8 +124,12 @@ Pick three.
 Trust me.";
 
         assert_eq!(
-            vec!["Rust:", "Trust me."],
-            search_case_insensitive(query, contents)
+            Lines::new("Rust:".to_string(), 1),
+            search_case_insensitive(query, contents)[0]
+        );
+        assert_eq!(
+            Lines::new("Trust me.".to_string(), 4),
+            search_case_insensitive(query, contents)[1]
         );
     }
 }
