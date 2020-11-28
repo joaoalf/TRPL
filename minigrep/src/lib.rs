@@ -109,8 +109,8 @@ Pick three.
 Duct tape.";
 
         assert_eq!(
-            Lines::new("safe, fast, productive.".to_string(), 2),
-            search(query, contents)[0]
+            vec![Lines::new("safe, fast, productive.".to_string(), 2)],
+            search(query, contents)
         );
     }
 
@@ -124,12 +124,11 @@ Pick three.
 Trust me.";
 
         assert_eq!(
-            Lines::new("Rust:".to_string(), 1),
-            search_case_insensitive(query, contents)[0]
-        );
-        assert_eq!(
-            Lines::new("Trust me.".to_string(), 4),
-            search_case_insensitive(query, contents)[1]
+            vec![
+                Lines::new("Rust:".to_string(), 1),
+                Lines::new("Trust me.".to_string(), 4)
+            ],
+            search_case_insensitive(query, contents)
         );
     }
 }
