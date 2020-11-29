@@ -18,19 +18,19 @@ pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
 }
 
 #[derive(Debug)]
-pub struct Lines {
+pub struct Line {
     pub line: String,
     pub number: u32,
 }
 
-impl Lines {
-    pub fn new(line: String, number: u32) -> Lines {
-        Lines { line, number }
+impl Line {
+    pub fn new(line: String, number: u32) -> Line {
+        Line { line, number }
     }
 }
 
-impl PartialEq for Lines {
-    fn eq(&self, other: &Lines) -> bool {
+impl PartialEq for Line {
+    fn eq(&self, other: &Line) -> bool {
         self.line == other.line && self.number == other.number
     }
 }
@@ -64,13 +64,13 @@ impl Config {
     }
 }
 
-pub fn search<'a>(query: &str, contents: &'a str) -> Vec<Lines> {
-    let mut results: Vec<Lines> = Vec::new();
+pub fn search<'a>(query: &str, contents: &'a str) -> Vec<Line> {
+    let mut results: Vec<Line> = Vec::new();
     let mut number: u32 = 0;
 
     for line in contents.lines() {
         number = number + 1;
-        results.push(Lines::new(line.to_string(), number));
+        results.push(Line::new(line.to_string(), number));
     }
 
     results
@@ -79,14 +79,14 @@ pub fn search<'a>(query: &str, contents: &'a str) -> Vec<Lines> {
         .collect()
 }
 
-pub fn search_case_insensitive<'a>(query: &str, contents: &'a str) -> Vec<Lines> {
+pub fn search_case_insensitive<'a>(query: &str, contents: &'a str) -> Vec<Line> {
     let query = query.to_lowercase();
-    let mut results: Vec<Lines> = Vec::new();
+    let mut results: Vec<Line> = Vec::new();
     let mut number: u32 = 0;
 
     for line in contents.lines() {
         number = number + 1;
-        results.push(Lines::new(line.to_string(), number));
+        results.push(Line::new(line.to_string(), number));
     }
 
     results
@@ -109,7 +109,7 @@ Pick three.
 Duct tape.";
 
         assert_eq!(
-            vec![Lines::new("safe, fast, productive.".to_string(), 2)],
+            vec![Line::new("safe, fast, productive.".to_string(), 2)],
             search(query, contents)
         );
     }
@@ -125,8 +125,8 @@ Trust me.";
 
         assert_eq!(
             vec![
-                Lines::new("Rust:".to_string(), 1),
-                Lines::new("Trust me.".to_string(), 4)
+                Line::new("Rust:".to_string(), 1),
+                Line::new("Trust me.".to_string(), 4)
             ],
             search_case_insensitive(query, contents)
         );
