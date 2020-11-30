@@ -4,10 +4,12 @@ use std::fs;
 
 pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
     let contents = fs::read_to_string(config.filename)?;
+    let lines: Vec<Line> = lines_to_vec_lines(&contents);
+
     let result = if config.case_sensitive {
-        search(&config.query, &contents)
+        search(&config.query, lines)
     } else {
-        search_case_insensitive(&config.query, &contents)
+        search_case_insensitive(&config.query, lines)
     };
 
     for l in result {
@@ -64,35 +66,30 @@ impl Config {
     }
 }
 
-pub fn search<'a>(query: &str, contents: &'a str) -> Vec<Line> {
-    let mut results: Vec<Line> = Vec::new();
-    let mut number: u32 = 0;
-
-    for line in contents.lines() {
-        number = number + 1;
-        results.push(Line::new(line.to_string(), number));
-    }
-
-    results
+pub fn search(query: &str, contents: Vec<Line>) -> Vec<Line> {
+    contents
         .into_iter()
         .filter(|l| l.line.contains(query))
         .collect()
 }
 
-pub fn search_case_insensitive<'a>(query: &str, contents: &'a str) -> Vec<Line> {
+pub fn search_case_insensitive(query: &str, contents: Vec<Line>) -> Vec<Line> {
     let query = query.to_lowercase();
-    let mut results: Vec<Line> = Vec::new();
-    let mut number: u32 = 0;
-
-    for line in contents.lines() {
-        number = number + 1;
-        results.push(Line::new(line.to_string(), number));
-    }
-
-    results
+    contents
         .into_iter()
         .filter(|l| l.line.to_lowercase().contains(&query))
         .collect()
+}
+
+fn lines_to_vec_lines(contents: &str) -> Vec<Line> {
+    let mut lines: Vec<Line> = Vec::new();
+    let mut number: u32 = 0;
+    for l in contents.lines() {
+        number = number + 1;
+        lines.push(Line::new(l.to_string(), number));
+    }
+
+    lines
 }
 
 #[cfg(test)]
@@ -107,10 +104,11 @@ Rust:
 safe, fast, productive.
 Pick three.
 Duct tape.";
+        let lines: Vec<Line> = lines_to_vec_lines(contents);
 
         assert_eq!(
             vec![Line::new("safe, fast, productive.".to_string(), 2)],
-            search(query, contents)
+            search(query, lines)
         );
     }
 
@@ -122,13 +120,13 @@ Rust:
 safe, fast, productive.
 Pick three.
 Trust me.";
-
+        let lines: Vec<Line> = lines_to_vec_lines(contents);
         assert_eq!(
             vec![
                 Line::new("Rust:".to_string(), 1),
                 Line::new("Trust me.".to_string(), 4)
             ],
-            search_case_insensitive(query, contents)
+            search_case_insensitive(query, lines)
         );
     }
 }
